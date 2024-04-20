@@ -2,6 +2,7 @@ from aiogram import Bot, Dispatcher, Router
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message as message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 
 import config
@@ -14,14 +15,17 @@ from aiogram.filters.command import Command
 from aiogram import F
 
 logging.basicConfig(level=logging.INFO)
+storage = MemoryStorage()
 bot = Bot(token=bot_token, parse_mode="HTML")
 
-dp = Dispatcher()
+dp = Dispatcher(storage=storage)
 router = Router()
 
 
 class States(StatesGroup):
     panel_admin = State()
+    event_creation0 = State()
+    event_creation1 = State()
 
 
 async def notify_admin1(dispatcher: Dispatcher):
@@ -53,16 +57,26 @@ async def admin_panel(msg: message, state: FSMContext):
 
 
 # todo написать регистрацию ивентов (название, на какое количество времени будет прием ставок)
+
+
+@dp.message(StateFilter(States.event_creation0))
+async def event_creation(user_id, state: FSMContext): # todo сделать создание ивента с установкой моржи и установкой начальных коэфоф
+    await bot.send_message(user_id, "Ведите название хуйни")
+    await state.set_state(States.event_creation1)
+
+
+
 # todo написать редактирование ивентов (новое открытие, редактирование участников, удаление)
 # todo написать бд для хранения статусов ивентов (название, статус *ставки закрыты/открыты*, )
 
 
 @router.callback_query(StateFilter(States.panel_admin))
-async def handle_button_click(callback: CallbackQuery):
+async def handle_button_click(callback: CallbackQuery, state: FSMContext):
     button_data = callback.data
-    # Handle Button 1 click
+    # хендлер для создания ивента
     if button_data == "create_event": # todo не сделано
-        await callback.message.answer("You clicked Button 1!")
+        await state.set_state(States.event_creation0)
+        await event_creation(callback.from_user.id)
     # Handle Button 2 click
     elif button_data == "check_events": # todo не сделано
         await callback.message.answer("You clicked Button 2!")

@@ -21,71 +21,73 @@ bot = Bot(token=bot_token, parse_mode="HTML")
 dp = Dispatcher(storage=storage)
 router = Router()
 
-
 class States(StatesGroup):
     panel_admin = State()
     event_creation0 = State()
     event_creation1 = State()
 
-
 async def notify_admin1(dispatcher: Dispatcher):
+    """
+    Отправляет сообщение администратору при запуске бота.
+    """
     await bot.send_message(chat_id=config.admin_id, text="Бот успешно запущен!")
 
-
 async def notify_admin2(dispatcher: Dispatcher):
+    """
+    Отправляет сообщение администратору при ошибке или остановке бота.
+    """
     await bot.send_message(chat_id=config.admin_id, text="Бот успешно упал!")
 
-
 async def f_send_msg(user_id, msg):
+    """
+    Отправляет сообщение пользователю.
+    """
     await bot.send_message(msg, user_id)
 
-
 async def f_del_msg(msg):
+    """
+    Удаляет сообщение.
+    """
     await bot.delete_message(msg.chat.id, msg.message_id)
-
-
-# todo написать панель администратора
 
 @dp.message(F.text, Command("start"))
 async def admin_panel(msg: message, state: FSMContext):
+    """
+    Начальная панель администратора с кнопками для управления событиями.
+    """
     inline_keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Создать хуйню", callback_data="create_event")],  # todo не сделано
-        [InlineKeyboardButton(text="Просмотр хуен", callback_data="check_events")],  # todo не сделано
+        [InlineKeyboardButton(text="Создать событие", callback_data="create_event")],
+        [InlineKeyboardButton(text="Просмотр событий", callback_data="check_events")],
     ])
-    await msg.answer("Привет, сосал?", reply_markup=inline_keyboard)
+    await msg.answer("Привет, как дела?", reply_markup=inline_keyboard)
     await state.set_state(States.panel_admin)
 
-
-# todo написать регистрацию ивентов (название, на какое количество времени будет прием ставок)
-
-
 @dp.message(StateFilter(States.event_creation0))
-async def event_creation(user_id, state: FSMContext): # todo сделать создание ивента с установкой моржи и установкой начальных коэфоф
-    await bot.send_message(user_id, "Ведите название хуйни")
+async def event_creation(user_id, state: FSMContext):
+    """
+    Начало процесса создания события, запрашивает название.
+    """
+    await bot.send_message(user_id, "Введите название события")
     await state.set_state(States.event_creation1)
-
-
-
-# todo написать редактирование ивентов (новое открытие, редактирование участников, удаление)
-# todo написать бд для хранения статусов ивентов (название, статус *ставки закрыты/открыты*, )
-
 
 @router.callback_query(StateFilter(States.panel_admin))
 async def handle_button_click(callback: CallbackQuery, state: FSMContext):
+    """
+    Обработчик нажатий на кнопки в администраторской панели.
+    """
     button_data = callback.data
-    # хендлер для создания ивента
-    if button_data == "create_event": # todo не сделано
+    if button_data == "create_event":
         await state.set_state(States.event_creation0)
         await event_creation(callback.from_user.id)
-    # Handle Button 2 click
-    elif button_data == "check_events": # todo не сделано
-        await callback.message.answer("You clicked Button 2!")
+    elif button_data == "check_events":
+        await callback.message.answer("Вы нажали кнопку просмотра событий!")
     await f_del_msg(callback.message)
-    # чтобы ебланы на кнопкин не нажимали много раз долбаебы ненавижу их блять
     await callback.answer()
 
-
 async def main():
+    """
+    Главная функция для запуска и остановки бота.
+    """
     dp.include_router(router)
     dp.startup.register(notify_admin1)
     dp.shutdown.register(notify_admin2)
@@ -93,7 +95,6 @@ async def main():
         await dp.start_polling(bot)
     finally:
         await bot.session.close()
-
 
 if __name__ == "__main__":
     asyncio.run(main())

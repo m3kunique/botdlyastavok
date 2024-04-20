@@ -5,9 +5,36 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message as message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 
+import os
+
+
+def create_config_file():
+    config_content = """# Configuration File
+token = 'your_bot_token_here'
+admin_id = 'your_telegram_id_here'
+archive_chat_id = 'chat_id_for_archiving'
+
+# Add more configuration variables as needed
+"""
+    with open("config.py", "w") as config_file:
+        config_file.write(config_content)
+    print("config.py created with default settings.")
+
+# Check if config.py exists
+if not os.path.exists("config.py"):
+    create_config_file()
+
+# Now you can safely import config
 import config
+try:
+    from aiogram.types import DefaultBotProperties
+    bot_properties = DefaultBotProperties(parse_mode="HTML")
+    bot = Bot(token=config.token, default=bot_properties)
+except ImportError:
+    bot = Bot(token=config.token, parse_mode="HTML")
 import profile
 from config import archive_chat_id as archive_chat
+
 from config import token as bot_token
 import asyncio
 import logging
@@ -16,7 +43,6 @@ from aiogram import F
 
 logging.basicConfig(level=logging.INFO)
 storage = MemoryStorage()
-bot = Bot(token=bot_token, parse_mode="HTML")
 
 dp = Dispatcher(storage=storage)
 router = Router()

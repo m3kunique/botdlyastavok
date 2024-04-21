@@ -89,22 +89,13 @@ async def event_creation2(msg: message, state: FSMContext):
     # занести данные в состояние
     await state.update_data(margin=msg.text)
 
-    await msg.answer("Введите количество событий")
+    await msg.answer("Введите вероятности исхода на хуйню (поставьте прочерк в случае равной вероятности)\n\n"
+                     "Пример ввода данных: <>win:1 lose:2 draw:2*")
     await state.set_state(States.event_creation3)
 
 
 @dp.message(StateFilter(States.event_creation3))
 async def event_creation3(msg: message, state: FSMContext):
-    # занести данные в состояние
-    await state.update_data(numofEvents=msg.text)
-
-    await msg.answer("Введите вероятности исхода на хуйню (поставьте прочерк в случае равной вероятности)\n\n"
-                     "Пример ввода данных: \n*win:1 \nlose:2 \ndraw:2*")
-    await state.set_state(States.event_creation4)
-
-
-@dp.message(StateFilter(States.event_creation4))
-async def event_creation4(msg: message, state: FSMContext):
     await state.update_data(bookie_knowledge=msg.text)
     user_state = await state.get_data()
     name = user_state.get("name")

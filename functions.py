@@ -12,7 +12,7 @@ def calculate_coefficients(bets, bookie_knowledge, margin):
 
     outcome_amounts = defaultdict(float)
     for bet in bets:
-        name, outcome, bet_amount = bet.split(':')
+        outcome, bet_amount = bet.split(':')
         outcome_amounts[outcome] += float(bet_amount)
 
     total_staked = sum(outcome_amounts.values())
@@ -27,16 +27,14 @@ def calculate_coefficients(bets, bookie_knowledge, margin):
         coefficients[outcome] = round(coefficient, 2)
 
     return coefficients
-# пример выполнения функции
+
 # bets = [
-#     "player1:win:1000",
-#     "player2:lose:800","player1:win:1000",
-#     "player2:lose:800","player1:win:1000",
-#     "player2:lose:800","player1:win:1000",
-#     "player2:lose:800","player1:win:1000",
-#     "player2:lose:800","player1:win:1000",
-#     "player2:lose:800","player1:win:1000",
-# ]
+#     "win:1000:4.25",
+#     "lose:1000:1.28",
+#     "draw:1000:1.9",
+#     "win:1000:3.0",
+#     "win:1000:4.25",
+#     ]
 #
 # # Знания букмекера о вероятностях исходов, которые могут не совсем равняться 100%
 # bookie_knowledge = {
@@ -49,10 +47,15 @@ def calculate_coefficients(bets, bookie_knowledge, margin):
 #     print(f"Outcome: {outcome}, Coefficient: {coefficient}")
 
 
+def string_to_dict(input_string):
+    # Создаем Словарь, из входной строки
+    return {key: value for key, value in (item.split(':') for item in input_string.split())}
 
 
-
-
+def dict_to_string(input_dict):
+    # Создаем строку, объединяя ключи и значения в формате "ключ:значение",
+    # разделенные пробелами
+    return ' '.join(f'{key}:{value}' for key, value in input_dict.items())
 
 
 

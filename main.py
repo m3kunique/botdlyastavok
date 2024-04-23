@@ -86,11 +86,10 @@ async def event_creation1(msg: message, state: FSMContext):
 
 @dp.message(StateFilter(States.event_creation2))
 async def event_creation2(msg: message, state: FSMContext):
-    # занести данные в состояние
     await state.update_data(margin=msg.text)
 
     await msg.answer("Введите вероятности исхода на хуйню (поставьте прочерк в случае равной вероятности)\n\n"
-                     "Пример ввода данных: <>win:1 lose:2 draw:2*")
+                     "Пример ввода данных: <b>win:1 lose:2 draw:2</b>")
     await state.set_state(States.event_creation3)
 
 
